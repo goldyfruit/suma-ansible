@@ -5,7 +5,7 @@
   gather_facts: false
 
   vars:
-    remediation_playbooks_dir: /home/debian/remediations-playbooks
+    remediation_playbooks_dir: /home/debian/remediations-playbooks/
     sles_openscap_profile: xccdf_org.ssgproject.content_profile_standard
     sles_openscap_remediations: "/root/{{ inventory_hostname }}-remediations.yml"
     sles_openscap_results: "/root/{{ inventory_hostname }}-results.xml"
@@ -68,4 +68,5 @@
     - name: Fetch OpenScap playbook remediation
       ansible.builtin.fetch:
         src: "{{ sles_openscap_remediations }}"
-        dest: "{{ remediation_playbooks_dir }}/{{ sles_openscap_remediations }}"
+        dest: "{{ remediation_playbooks_dir }}"
+        flat: true

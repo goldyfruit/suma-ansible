@@ -4,6 +4,11 @@
   user: root
   gather_facts: false
 
+  vars:
+    sles_openscap_profile: xccdf_org.ssgproject.content_profile_ospp
+    sles_openscap_results: "/root/{{ ansible_hostname }}-results.xml"
+    sles_openscap_security_guide: /usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml
+
   tasks:
     - name: Install the latest version of the package
       ansible.builtin.dnf:
@@ -33,3 +38,8 @@
         group: root
         mode: og-rwx
       with_items: "{{ cron_directories.files }}"
+
+    - name: Run OpenSCAP scan
+      ansible.builtin.command:
+        cmd: oscap xccdf eval --profile {{ sles_openscap_profile }} --results {{ sles_openscap_results }} {{ sles_openscap_security_guide }}
+      changed_when: false

@@ -1,0 +1,13 @@
+---
+- name: Remediation for RHEL 9 servers
+  hosts: rhel
+  user: root
+  gather_facts: false
+
+  tasks:
+    - name: Install the latest version of the package
+      ansible.builtin.dnf:
+        name: "{{ item }}"
+      loop:
+        - vim
+        - curl

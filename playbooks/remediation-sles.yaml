@@ -1,0 +1,13 @@
+---
+- name: Remediation for SLES 15 servers
+  hosts: sles
+  user: root
+  gather_facts: false
+
+  tasks:
+    - name: Install the latest version of the package
+      community.general.zypper:
+        name: "{{ item }}"
+      loop:
+        - vim
+        - curl

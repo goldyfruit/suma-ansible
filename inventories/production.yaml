@@ -1,0 +1,12 @@
+rhel:
+  hosts:
+    rhel94-liberty.home.lan:
+
+sles:
+  hosts:
+    suma-clm-sles-156-dev.home.lan:
+
+production:
+  children:
+    rhel:
+    sles:

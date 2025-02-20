@@ -5,50 +5,13 @@
   gather_facts: false
 
   vars:
-    remediation_playbooks_dir: /home/debian/remediations-playbooks/
+    remediation_playbooks_dir: /home/debian/remediations-playbooks/sles/
     sles_openscap_profile: xccdf_org.ssgproject.content_profile_standard
     sles_openscap_remediations: "/root/{{ inventory_hostname }}-remediations.yml"
     sles_openscap_results: "/root/{{ inventory_hostname }}-results.xml"
     sles_openscap_security_guide: /usr/share/xml/scap/ssg/content/ssg-sle15-ds.xml
 
   tasks:
-    - name: Install specific version of packages
-      community.general.zypper:
-        name: "{{ item }}"
-      loop:
-        - vim < 9.2
-        - curl = 8.6.0-150600.4.15.1
-
-    - name: Install patches
-      community.general.zypper:
-        name: "{{ item }}"
-        type: patch
-      loop:
-        - CL-SUSE-SLE-Manager-Tools-15-2018-2441
-        - CL-SUSE-SLE-Module-Basesystem-15-SP6-2024-1943
-
-    - name: Find cron files and directories
-      ansible.builtin.find:
-        paths:
-          - /etc
-        patterns:
-          - cron.hourly
-          - cron.daily
-          - cron.weekly
-          - cron.monthly
-          - cron.d
-          - crontab
-        file_type: any
-      register: cron_directories
-
-    - name: Ensure permissions on cron files and directories are configured
-      ansible.builtin.file:
-        path: "{{ item.path }}"
-        owner: root
-        group: root
-        mode: og-rwx
-      with_items: "{{ cron_directories.files }}"
-
     - name: Run OpenSCAP scan
       ansible.builtin.command:
         cmd: oscap xccdf eval --profile {{ sles_openscap_profile }} --results {{ sles_openscap_results }} {{ sles_openscap_security_guide }}

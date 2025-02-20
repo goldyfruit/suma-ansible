@@ -6,6 +6,7 @@
 
   vars:
     sles_openscap_profile: xccdf_org.ssgproject.content_profile_standard
+    sles_openscap_remediations: "/root/{{ inventory_hostname }}-remediations.yml"
     sles_openscap_results: "/root/{{ inventory_hostname }}-results.xml"
     sles_openscap_security_guide: /usr/share/xml/scap/ssg/content/ssg-sle15-ds.xml
 

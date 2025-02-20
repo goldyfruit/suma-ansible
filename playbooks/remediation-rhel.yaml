@@ -43,3 +43,5 @@
       ansible.builtin.command:
         cmd: oscap xccdf eval --profile {{ sles_openscap_profile }} --results {{ sles_openscap_results }} {{ sles_openscap_security_guide }}
       changed_when: false
+      register: _openscap_scan_output
+      failed_when: _openscap_scan_output.rc == 1

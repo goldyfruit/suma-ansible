@@ -6,15 +6,15 @@
 
   vars:
     remediation_playbooks_dir: /home/debian/remediations-playbooks/rhel/
-    sles_openscap_profile: xccdf_org.ssgproject.content_profile_ospp
-    sles_openscap_remediations: "/root/{{ inventory_hostname }}-remediations.yml"
-    sles_openscap_results: "/root/{{ inventory_hostname }}-results.xml"
-    sles_openscap_security_guide: /usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml
+    rhel_openscap_profile: xccdf_org.ssgproject.content_profile_ospp
+    rhel_openscap_remediations: "/root/{{ inventory_hostname }}-remediations.yml"
+    rhel_openscap_results: "/root/{{ inventory_hostname }}-results.xml"
+    rhel_openscap_security_guide: /usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml
 
   tasks:
     - name: Run OpenSCAP scan
       ansible.builtin.command:
-        cmd: oscap xccdf eval --profile {{ sles_openscap_profile }} --results {{ sles_openscap_results }} {{ sles_openscap_security_guide }}
+        cmd: oscap xccdf eval --profile {{ rhel_openscap_profile }} --results {{ rhel_openscap_results }} {{ rhel_openscap_security_guide }}
       changed_when: false
       register: _openscap_scan_output
       failed_when: _openscap_scan_output.rc == 1
@@ -23,13 +23,13 @@
       ansible.builtin.command:
         cmd: >
           oscap xccdf generate fix --fix-type ansible
-          --profile {{ sles_openscap_profile }}
-          --output {{ sles_openscap_remediations }}
-          {{ sles_openscap_results }}
+          --profile {{ rhel_openscap_profile }}
+          --output {{ rhel_openscap_remediations }}
+          {{ rhel_openscap_results }}
       changed_when: false
 
     - name: Fetch OpenScap playbook remediation
       ansible.builtin.fetch:
-        src: "{{ sles_openscap_remediations }}"
+        src: "{{ rhel_openscap_remediations }}"
         dest: "{{ remediation_playbooks_dir }}"
         flat: true

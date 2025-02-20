@@ -5,7 +5,7 @@
   gather_facts: false
 
   tasks:
-    - name: Install the specific version of packages
+    - name: Install specific version of packages
       community.general.zypper:
         name: "{{ item }}"
       loop:
@@ -18,3 +18,4 @@
         type: patch
       loop:
         - CL-SUSE-SLE-Manager-Tools-15-2018-2441
+        - CL-SUSE-SLE-Module-Basesystem-15-SP6-2024-1943

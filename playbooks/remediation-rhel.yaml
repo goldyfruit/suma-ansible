@@ -6,7 +6,7 @@
 
   vars:
     sles_openscap_profile: xccdf_org.ssgproject.content_profile_ospp
-    sles_openscap_results: "/root/{{ ansible_hostname }}-results.xml"
+    sles_openscap_results: "/root/{{ inventory_hostname }}-results.xml"
     sles_openscap_security_guide: /usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml
 
   tasks:

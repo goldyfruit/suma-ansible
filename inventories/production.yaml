@@ -1,10 +1,14 @@
 rhel:
   hosts:
     rhel94-liberty.home.lan:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
 sles:
   hosts:
     suma-clm-sles-156-dev.home.lan:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
 production:
   children:

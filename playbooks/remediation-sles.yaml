@@ -5,10 +5,16 @@
   gather_facts: false
 
   tasks:
-    - name: Install the latest version of the package
+    - name: Install the specific version of packages
       community.general.zypper:
         name: "{{ item }}"
       loop:
         - vim<9.2
         - curl=8.6.0-150600.4.15.1
+
+    - name: Install patches
+      community.general.zypper:
+        name: "{{ item }}"
+        type: patch
+      loop:
         - CL-SUSE-SLE-Manager-Tools-15-2018-2441

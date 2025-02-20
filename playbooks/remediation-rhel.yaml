@@ -6,6 +6,7 @@
 
   vars:
     sles_openscap_profile: xccdf_org.ssgproject.content_profile_ospp
+    sles_openscap_remediations: "/root/{{ inventory_hostname }}-remediations.yml"
     sles_openscap_results: "/root/{{ inventory_hostname }}-results.xml"
     sles_openscap_security_guide: /usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml
 
@@ -45,3 +46,12 @@
       changed_when: false
       register: _openscap_scan_output
       failed_when: _openscap_scan_output.rc == 1
+
+    - name: Generate OpenSCAP playbook remediation
+      ansible.builtin.command:
+        cmd: >
+          oscap xccdf generate fix --fix-type ansible
+          --profile {{ sles_openscap_profile }}
+          --output {{ sles_openscap_remediations }}
+          {{ sles_openscap_results }}
+      changed_when: false

@@ -5,7 +5,7 @@
   gather_facts: false
 
   vars:
-    remediation_playbooks_dir: /home/debian/remediations-playbooks/rhel/
+    remediation_playbooks_dir: /home/debian/remediations-playbooks/
     rhel_openscap_profile: xccdf_org.ssgproject.content_profile_ospp
     rhel_openscap_remediations: "/root/{{ inventory_hostname }}-remediations.yml"
     rhel_openscap_results: "/root/{{ inventory_hostname }}-results.xml"

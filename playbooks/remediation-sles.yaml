@@ -9,8 +9,8 @@
       community.general.zypper:
         name: "{{ item }}"
       loop:
-        - vim<9.2
-        - curl=8.6.0-150600.4.15.1
+        - vim < 9.2
+        - curl = 8.6.0-150600.4.15.1
 
     - name: Install patches
       community.general.zypper:

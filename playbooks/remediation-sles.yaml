@@ -9,5 +9,6 @@
       community.general.zypper:
         name: "{{ item }}"
       loop:
-        - vim
-        - curl
+        - vim<9.2
+        - curl=8.6.0-150600.4.15.1
+        - CL-SUSE-SLE-Manager-Tools-15-2018-2441

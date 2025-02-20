@@ -1,0 +1,22 @@
+---
+- name: Apply OpenSCAP Ansible playbooks remediations
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    remote_host_user: root
+    hosts_to_remediate: []
+    remediation_playbooks_dir: /home/debian/remediations-playbooks
+
+  tasks:
+    - name: Generate hosts list to remediate based on OpenSCAP Ansible playbooks
+      ansible.builtin.set_fact:
+        hosts_to_remediate: "{{ hosts_to_remediate + [item.path | regex_replace('-[^-]+$', '')] }}"
+      with_community.general.filetree: "{{ remediation_playbooks_dir }}"
+      when: item.path is search('remediations.yml$')
+
+    - name: Execure OpenSCAP Ansible playbooks remediations
+      ansible.builtin.command:
+        cmd: ansible-playbook -i {{ item }}, -u {{ remote_host_user }} {{ remediation_playbooks_dir }}/{{ item }}-remediations.yml
+      loop: "{{ hosts_to_remediate }}"
+      changed_when: false

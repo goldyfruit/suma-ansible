@@ -1,0 +1,6 @@
+---
+smlm_host: https://suma.home.lan
+smlm_endpoint: "{{ smlm_host }}/rhn/manager/api"
+smlm_verify: true
+smlm_login: admin
+smlm_password: ChangeMe-Now-123

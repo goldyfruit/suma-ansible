@@ -1,14 +1,16 @@
 rhel:
   hosts:
-    rhel94-liberty.home.lan:
+    rhel-94-openscap.home.lan:
   vars:
     ansible_python_interpreter: /usr/bin/python3
+    ansible_user: cloud-user
 
 sles:
   hosts:
-    suma-clm-sles-156-dev.home.lan:
+    sles-15sp6-openscap.home.lan:
   vars:
     ansible_python_interpreter: /usr/bin/python3
+    ansible_user: sles
 
 production:
   children:

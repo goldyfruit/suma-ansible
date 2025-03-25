@@ -1,0 +1,165 @@
+---
+- name: Remediation for RHEL and SLES servers
+  hosts: all
+  user: root
+  gather_facts: true
+  gather_subset:
+    - "min"
+    - "!all"
+
+  vars:
+    remediation_playbooks_dir: /home/debian/remediations-playbooks/
+    openscap_remediations: "/root/{{ inventory_hostname }}-remediations.yml"
+    openscap_results: "/root/{{ inventory_hostname }}-results.xml"
+
+  pre_tasks:
+    - name: Include SMLM credentials
+      ansible.builtin.include_vars: "vars/smlm.yaml"
+      delegate_to: "{{ play_hosts | first }}"
+      run_once: true
+      tags:
+        - skip_ansible_lint
+
+    - name: Retrieve SMLM credentials
+      ansible.builtin.uri:
+        url: "{{ smlm_endpoint }}/auth/login"
+        validate_certs: "{{ smlm_verify }}"
+        method: POST
+        headers:
+          Content-Type: application/json
+        body: |
+          {
+            "login": "{{ smlm_login }}",
+            "password": "{{ smlm_password }}"
+          }
+        body_format: json
+        status_code: 200
+      register: _smlm_credentials
+      failed_when: not _smlm_credentials.json.success | bool
+      delegate_to: "{{ play_hosts | first }}"
+      run_once: true
+      tags:
+        - skip_ansible_lint
+
+    - name: Set smlm_cookie fact
+      vars:
+        _smlm_jsessionid: "{{ _smlm_credentials.cookies['JSESSIONID'] }}"
+        _smlm_pxt: "{{ _smlm_credentials.cookies['pxt-session-cookie'] }}"
+      ansible.builtin.set_fact:
+        smlm_cookie: "JSESSIONID={{ _smlm_jsessionid }}; pxt-session-cookie={{ _smlm_pxt }}"
+      delegate_to: "{{ play_hosts | first }}"
+      run_once: true
+      tags:
+        - skip_ansible_lint
+
+    - name: Retrieve active registered systems from SMLM
+      ansible.builtin.uri:
+        url: "{{ smlm_endpoint }}/system/listSystems"
+        validate_certs: "{{ smlm_verify }}"
+        method: GET
+        headers:
+          Accept: application/json
+          Cookie: "{{ smlm_cookie }}"
+        status_code: 200
+      register: _smlm_registered_systems
+      failed_when: not _smlm_registered_systems.json.success | bool
+      delegate_to: "{{ play_hosts | first }}"
+      run_once: true
+      tags:
+        - skip_ansible_lint
+
+    - name: Retrieve existing OpenSCAP results
+      ansible.builtin.uri:
+        url: "{{ smlm_endpoint }}/system/scap/listXccdfScans?sid={{ item.id }}"
+        validate_certs: "{{ smlm_verify }}"
+        method: GET
+        headers:
+          Content-Type: application/json
+          Cookie: "{{ smlm_cookie }}"
+        status_code: 200
+      register: _smlm_openscap_results
+      failed_when: not _smlm_openscap_results.json.success | bool
+      loop: "{{ _smlm_registered_systems.json.result }}"
+      when: item.name == inventory_hostname
+
+    - name: Set smlm_openscap_results fact
+      ansible.builtin.set_fact:
+        smlm_openscap_results: "{{ item.json.result }}"
+      loop: "{{ _smlm_openscap_results.results }}"
+      when: "'invocation' in item.keys()"
+
+  tasks:
+    - name: Gather OS-specific variables
+      ansible.builtin.include_vars: "vars/{{ ansible_distribution }}.yaml"
+
+    - name: Install OpenSCAP
+      ansible.builtin.package:
+        name: "{{ openscap_packages }}"
+
+    - name: Trigger OpenSCAP scan
+      ansible.builtin.uri:
+        url: "{{ smlm_endpoint }}/system/scap/scheduleXccdfScan"
+        validate_certs: "{{ smlm_verify }}"
+        method: POST
+        headers:
+          Content-Type: application/json
+          Cookie: "{{ smlm_cookie }}"
+        body: |
+          {
+            "sid": {{ item.id }},
+            "xccdfPath": "{{ openscap_security_guide }}",
+            "oscapParams": "--profile {{ openscap_profile }}",
+          }
+        body_format: json
+        status_code: 200
+      register: _smlm_openscap_scan
+      failed_when: not _smlm_openscap_scan.json.success | bool
+      loop: "{{ _smlm_registered_systems.json.result }}"
+      when: item.name == inventory_hostname
+
+    - name: Wait for the OpenSCAP scan to finish
+      ansible.builtin.uri:
+        url: "{{ smlm_endpoint }}/system/scap/listXccdfScans?sid={{ item.id }}"
+        validate_certs: "{{ smlm_verify }}"
+        method: GET
+        headers:
+          Content-Type: application/json
+          Cookie: "{{ smlm_cookie }}"
+        status_code: 200
+      register: _smlm_openscap_waiting_result
+      failed_when: not _smlm_openscap_waiting_result.json.success | bool
+      loop: "{{ _smlm_registered_systems.json.result }}"
+      until: _smlm_openscap_waiting_result.json.result | length > smlm_openscap_results | length
+      retries: 30
+      delay: 10
+      when: item.name == inventory_hostname
+
+    - name: Download file with custom HTTP headers
+      vars:
+        _smlm_openscap_result_xid: "{{ smlm_openscap_results | first }}"
+      ansible.builtin.get_url:
+        url: "{{ smlm_host }}/rhn/systems/details/audit/ScapResultDownload.do?sid={{ item.id }}&xid={{ _smlm_openscap_result_xid.xid + 2 }}&name=results.xml"
+        dest: "{{ openscap_results }}"
+        headers:
+          Content-Type: application/json
+          Cookie: "{{ smlm_cookie }}"
+        owner: root
+        group: root
+        mode: "0644"
+      loop: "{{ _smlm_registered_systems.json.result }}"
+      when: item.name == inventory_hostname
+
+    - name: Generate OpenSCAP playbook remediation
+      ansible.builtin.command:
+        cmd: >
+          oscap xccdf generate fix --fix-type ansible
+          --profile {{ openscap_profile }}
+          --output {{ openscap_remediations }}
+          {{ openscap_results }}
+      changed_when: false
+
+    - name: Fetch OpenScap playbook remediation
+      ansible.builtin.fetch:
+        src: "{{ openscap_remediations }}"
+        dest: "{{ remediation_playbooks_dir }}"
+        flat: true

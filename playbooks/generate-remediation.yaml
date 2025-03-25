@@ -131,7 +131,7 @@
       loop: "{{ _smlm_registered_systems.json.result }}"
       until: _smlm_openscap_waiting_result.json.result | length > smlm_openscap_results | length
       retries: 30
-      delay: 10
+      delay: 30
       when: item.name == inventory_hostname
 
     - name: Download file with custom HTTP headers

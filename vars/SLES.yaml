@@ -4,3 +4,4 @@ openscap_security_guide: /usr/share/xml/scap/ssg/content/ssg-sle15-ds.xml
 openscap_packages:
   - spacewalk-oscap
   - scap-security-guide
+  - apparmor-utils

@@ -108,7 +108,7 @@
           {
             "sid": {{ item.id }},
             "xccdfPath": "{{ openscap_security_guide }}",
-            "oscapParams": "--profile {{ openscap_profile }} --fetch-remote-resources",
+            "oscapParams": "--profile {{ openscap_profile }}",
           }
         body_format: json
         status_code: 200

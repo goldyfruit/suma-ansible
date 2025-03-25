@@ -4,7 +4,6 @@
   gather_facts: false
 
   vars:
-    remote_host_user: root
     hosts_to_remediate: []
     remediation_playbooks_dir: /root/remediations-playbooks
 
@@ -17,6 +16,6 @@
 
     - name: Execute OpenSCAP Ansible playbooks remediations
       ansible.builtin.command:
-        cmd: ansible-playbook -i {{ item }}, -u {{ remote_host_user }} {{ remediation_playbooks_dir }}/{{ item }}-remediations.yml
+        cmd: ansible-playbook -i {{ item }}, -u {{ hostvars[item].ansible_user }} -b {{ remediation_playbooks_dir }}/{{ item }}-remediations.yml
       loop: "{{ hosts_to_remediate }}"
       changed_when: false

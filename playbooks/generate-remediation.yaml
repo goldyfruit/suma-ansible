@@ -14,7 +14,7 @@
 
   pre_tasks:
     - name: Include SMLM credentials
-      ansible.builtin.include_vars: "vars/smlm.yaml"
+      ansible.builtin.include_vars: "../vars/smlm.yaml"
       delegate_to: "{{ play_hosts | first }}"
       run_once: true
       tags:

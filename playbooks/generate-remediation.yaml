@@ -8,7 +8,7 @@
     - "!all"
 
   vars:
-    remediation_playbooks_dir: /home/debian/remediations-playbooks/
+    remediation_playbooks_dir: /root/remediations-playbooks/
     openscap_remediations: "/root/{{ inventory_hostname }}-remediations.yml"
     openscap_results: "/root/{{ inventory_hostname }}-results.xml"
 

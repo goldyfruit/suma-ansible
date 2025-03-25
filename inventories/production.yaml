@@ -1,13 +1,15 @@
 rhel:
   hosts:
-    rhel-94-openscap.home.lan:
+    oscap-rhel-01.home.lan:
+    oscap-rhel-02.home.lan:
   vars:
     ansible_python_interpreter: /usr/bin/python3
     ansible_user: cloud-user
 
 sles:
   hosts:
-    sles-15sp6-openscap.home.lan:
+    oscap-sles-01.home.lan:
+    oscap-sles-02.home.lan:
   vars:
     ansible_python_interpreter: /usr/bin/python3
     ansible_user: sles

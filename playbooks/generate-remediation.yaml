@@ -1,7 +1,7 @@
 ---
 - name: Remediation for RHEL and SLES servers
   hosts: all
-  user: root
+  become: true
   gather_facts: true
   gather_subset:
     - "min"

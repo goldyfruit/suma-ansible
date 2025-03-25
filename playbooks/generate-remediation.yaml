@@ -90,7 +90,7 @@
 
   tasks:
     - name: Gather OS-specific variables
-      ansible.builtin.include_vars: "vars/{{ ansible_distribution }}.yaml"
+      ansible.builtin.include_vars: "../vars/{{ ansible_distribution }}.yaml"
 
     - name: Install OpenSCAP
       ansible.builtin.package:

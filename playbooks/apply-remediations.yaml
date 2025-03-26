@@ -6,6 +6,7 @@
   vars:
     hosts_to_remediate: []
     remediation_playbooks_dir: /root/remediations-playbooks
+    remediation_timeout: 1800
 
   tasks:
     - name: Generate hosts list to remediate based on OpenSCAP Ansible playbooks
@@ -17,5 +18,18 @@
     - name: Execute OpenSCAP Ansible playbooks remediations
       ansible.builtin.command:
         cmd: ansible-playbook -i {{ item }}, -u {{ hostvars[item].ansible_user }} -b {{ remediation_playbooks_dir }}/{{ item }}-remediations.yml
+      register: _smlm_oscap_remediation
       loop: "{{ hosts_to_remediate }}"
       changed_when: false
+      async: "{{ remediation_timeout }}"
+      poll: 0
+
+    - name: Wait for OpenSCAP remediation task to finish
+      ansible.builtin.async_status:
+        jid: "{{ item.ansible_job_id }}"
+      register: _jobs_smlm_oscap_remediation
+      retries: 30
+      delay: 60
+      until: _jobs_smlm_oscap_remediation.finished
+      loop: "{{ _smlm_oscap_remediation.results }}"
+      when: item.ansible_job_id is defined

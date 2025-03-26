@@ -1,0 +1,11 @@
+<xccdf-1.2:Tailoring id="xccdf_auto_tailoring_default"
+	xmlns:xccdf-1.2="http://checklists.nist.gov/xccdf/1.2">
+	<xccdf-1.2:benchmark href="file://{{ openscap_security_guide }}" />
+	<xccdf-1.2:version time="2025-03-26T16:23:16.351851">1</xccdf-1.2:version>
+	<xccdf-1.2:Profile extends="{{ openscap_profile }}" id="{{ openscap_profile }}">
+		<xccdf-1.2:title override="true">Custom tailored CIS L1 profile</xccdf-1.2:title>
+{% for rule in {{ openscap_tailoring_rules }} %}
+        <xccdf-1.2:select idref="{{ ansible_mounts.mount }}" selected="false" />
+{% endfor %}
+	</xccdf-1.2:Profile>
+</xccdf-1.2:Tailoring>

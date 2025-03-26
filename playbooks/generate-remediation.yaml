@@ -11,6 +11,14 @@
     remediation_playbooks_dir: /root/remediations-playbooks/
     openscap_remediations: "/root/{{ inventory_hostname }}-remediations.yml"
     openscap_results: "/root/{{ inventory_hostname }}-results.xml"
+    openscap_tailoring_file: /root/custom_tailoring.xml
+    openscap_tailoring_rules:
+      - xccdf_org.ssgproject.content_rule_disable_ipv6
+      - xccdf_org.ssgproject.content_rule_auditd_data_retention
+      - xccdf_org.ssgproject.content_rule_partition_for_tmp
+      - xccdf_org.ssgproject.content_rule_sshd_limit_user_access
+      - xccdf_org.ssgproject.content_rule_aide_periodic_checking_systemd_timer
+      - xccdf_org.ssgproject.content_rule_grub2_uefi_password
 
   pre_tasks:
     - name: Include SMLM credentials
@@ -96,6 +104,14 @@
       ansible.builtin.package:
         name: "{{ openscap_packages }}"
 
+    - name: Generate OpenSCAP tailoring file
+      ansible.builtin.template:
+        src: custom_tailoring.xml.j2
+        dest: "{{ openscap_tailoring_file }}"
+        owner: root
+        group: root
+        mode: "0644"
+
     - name: Trigger OpenSCAP scan
       ansible.builtin.uri:
         url: "{{ smlm_endpoint }}/system/scap/scheduleXccdfScan"
@@ -108,7 +124,7 @@
           {
             "sid": {{ item.id }},
             "xccdfPath": "{{ openscap_security_guide }}",
-            "oscapParams": "--profile {{ openscap_profile }}",
+            "oscapParams": "--profile {{ openscap_profile }} --tailoring-file {{ openscap_tailoring_file }}",
           }
         body_format: json
         status_code: 200
@@ -180,7 +196,7 @@
           {{ openscap_results }}
       changed_when: false
 
-    - name: Fetch OpenScap playbook remediation
+    - name: Fetch OpenSCAP Ansible playbook remediation
       ansible.builtin.fetch:
         src: "{{ openscap_remediations }}"
         dest: "{{ remediation_playbooks_dir }}"

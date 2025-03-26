@@ -176,6 +176,7 @@
           oscap xccdf generate fix --fix-type ansible
           --profile {{ openscap_profile }}
           --output {{ openscap_remediations }}
+          --result-id {{ openscap_profile }}
           {{ openscap_results }}
       changed_when: false
 

@@ -184,6 +184,7 @@
         cmd: >
           oscap xccdf generate fix --fix-type ansible
           --profile {{ openscap_profile }}
+          --tailoring-file {{ openscap_tailoring_file }}
           --output {{ openscap_remediations }}
           --result-id {{ openscap_profile }}
           {{ openscap_results }}

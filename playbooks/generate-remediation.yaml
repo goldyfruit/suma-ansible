@@ -92,7 +92,7 @@
     - name: Gather OS-specific variables
       ansible.builtin.include_vars: "../vars/{{ ansible_distribution }}.yaml"
 
-    - name: Install OpenSCAP
+    - name: Install OpenSCAP packages
       ansible.builtin.package:
         name: "{{ openscap_packages }}"
 
@@ -155,7 +155,7 @@
       loop: "{{ _smlm_openscap_last_scan.results }}"
       when: "'invocation' in item.keys()"
 
-    - name: Download file with custom HTTP headers
+    - name: Download OpenSCAP scan results
       vars:
         _smlm_openscap_result_xid: "{{ smlm_openscap_last_scan | first }}"
       ansible.builtin.get_url:

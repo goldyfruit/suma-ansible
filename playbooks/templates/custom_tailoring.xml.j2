@@ -4,8 +4,8 @@
 	<xccdf-1.2:version time="2025-03-26T16:23:16.351851">1</xccdf-1.2:version>
 	<xccdf-1.2:Profile extends="{{ openscap_profile }}" id="{{ openscap_profile }}">
 		<xccdf-1.2:title override="true">Custom tailored CIS L1 profile</xccdf-1.2:title>
-{% for rule in {{ openscap_tailoring_rules }} %}
-        <xccdf-1.2:select idref="{{ ansible_mounts.mount }}" selected="false" />
+{% for rule in openscap_tailoring_rules %}
+        <xccdf-1.2:select idref="{{ rule }}" selected="false" />
 {% endfor %}
 	</xccdf-1.2:Profile>
 </xccdf-1.2:Tailoring>

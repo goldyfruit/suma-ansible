@@ -4,3 +4,9 @@ openscap_security_guide: /usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml
 openscap_packages:
   - openscap-scanner
   - scap-security-guide-redhat
+openscap_tailoring_rules:
+  - xccdf_org.ssgproject.content_rule_auditd_data_retention
+  - xccdf_org.ssgproject.content_rule_partition_for_tmp
+  - xccdf_org.ssgproject.content_rule_sshd_limit_user_access
+  - xccdf_org.ssgproject.content_rule_aide_periodic_checking_systemd_timer
+  - xccdf_org.ssgproject.content_rule_grub2_uefi_password

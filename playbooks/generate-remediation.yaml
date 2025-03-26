@@ -134,11 +134,32 @@
       delay: 30
       when: item.name == inventory_hostname
 
+    - name: Retrieve the last OpenSCAP scan results
+      ansible.builtin.uri:
+        url: "{{ smlm_endpoint }}/system/scap/listXccdfScans?sid={{ item.id }}"
+        validate_certs: "{{ smlm_verify }}"
+        method: GET
+        headers:
+          Content-Type: application/json
+          Cookie: "{{ smlm_cookie }}"
+        status_code:
+          - 200
+      register: _smlm_openscap_last_scan
+      failed_when: not _smlm_openscap_last_scan.json.success | bool
+      loop: "{{ _smlm_registered_systems.json.result }}"
+      when: item.name == inventory_hostname
+
+    - name: Set smlm_openscap_last_scan fact
+      ansible.builtin.set_fact:
+        smlm_openscap_last_scan: "{{ item.json.result }}"
+      loop: "{{ _smlm_openscap_last_scan.results }}"
+      when: "'invocation' in item.keys()"
+
     - name: Download file with custom HTTP headers
       vars:
-        _smlm_openscap_result_xid: "{{ smlm_openscap_results | first }}"
+        _smlm_openscap_result_xid: "{{ smlm_openscap_last_scan | first }}"
       ansible.builtin.get_url:
-        url: "{{ smlm_host }}/rhn/systems/details/audit/ScapResultDownload.do?sid={{ item.id }}&xid={{ _smlm_openscap_result_xid.xid + 2 }}&name=results.xml"
+        url: "{{ smlm_host }}/rhn/systems/details/audit/ScapResultDownload.do?sid={{ item.id }}&xid={{ _smlm_openscap_result_xid.xid }}&name=results.xml"
         dest: "{{ openscap_results }}"
         headers:
           Content-Type: application/json

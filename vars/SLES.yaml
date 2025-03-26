@@ -12,3 +12,5 @@ openscap_tailoring_rules:
   - xccdf_org.ssgproject.content_rule_sshd_limit_user_access
   - xccdf_org.ssgproject.content_rule_aide_periodic_checking_systemd_timer
   - xccdf_org.ssgproject.content_rule_grub2_uefi_password
+  - xccdf_org.ssgproject.content_rule_package_firewalld_installed
+  - xccdf_org.ssgproject.content_rule_service_iptables_enabled
